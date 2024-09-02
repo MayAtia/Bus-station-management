@@ -19,18 +19,43 @@ const ManagerLoginPage = () => {
     }
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEmployeeNumber('');
+    setPassword('');
+    setBusLine('');
+  };
+
   const handleBusLineSubmit = () => {
     navigate(`/manager/indicators?busLine=${busLine}`);
+  };
+
+  const handleEmployeeNumberChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setEmployeeNumber(value);
+    } else {
+      alert('יש להכניס רק מספרים');
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    if (/^[^<>@#$%&*]*$/.test(value)) {
+      setPassword(value);
+    } else {
+      alert("אין להשתמש בתווים @!><");
+    }
   };
 
   return (
     <Container maxWidth="sm">
       <Box my={4} style={{ direction: 'rtl', textAlign: 'right' }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          כניסת מנהל
-        </Typography>
         {!isLoggedIn ? (
           <>
+            <Typography variant="h4" component="h1" gutterBottom>
+              כניסת מנהל
+            </Typography>
             <Typography variant="h6" component="label" htmlFor="employeeNumber">
               מספר עובד
             </Typography>
@@ -39,9 +64,10 @@ const ManagerLoginPage = () => {
               fullWidth
               margin="normal"
               value={employeeNumber}
-              onChange={(e) => setEmployeeNumber(e.target.value)}
+              onChange={handleEmployeeNumberChange}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
+              sx={{ backgroundColor: '#FFFFFF' }}
             />
             <Typography variant="h6" component="label" htmlFor="password">
               סיסמה
@@ -52,9 +78,10 @@ const ManagerLoginPage = () => {
               fullWidth
               margin="normal"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={handlePasswordChange}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
+              sx={{ backgroundColor: '#FFFFFF' }}
             />
             <Button
               variant="contained"
@@ -69,6 +96,21 @@ const ManagerLoginPage = () => {
           </>
         ) : (
           <>
+            <Button
+              onClick={handleLogout}
+              sx={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                backgroundColor: '#ff0000',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: '#cc0000',
+                },
+              }}
+            >
+              יציאה
+            </Button>
             <Typography variant="h6" component="label" htmlFor="busLine">
               קו אוטובוס
             </Typography>
@@ -80,6 +122,7 @@ const ManagerLoginPage = () => {
               onChange={(e) => setBusLine(e.target.value)}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
+              sx={{ backgroundColor: '#FFFFFF' }}
             />
             <Button
               variant="contained"
@@ -87,7 +130,7 @@ const ManagerLoginPage = () => {
               onClick={handleBusLineSubmit}
               fullWidth
               disabled={!busLine}
-              style={{ fontSize: '1.2rem', padding: '12px' }} // Increased button size
+              style={{ fontSize: '1.2rem', padding: '12px' }} 
             >
               הצג
             </Button>

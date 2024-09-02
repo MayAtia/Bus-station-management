@@ -1,3 +1,5 @@
+// src/App.js
+import './App.css';
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
@@ -6,10 +8,12 @@ import SelectBusLine from './components/SelectBusLine';
 import StationsTable from './components/StationsTable';
 import ManagerLoginPage from './components/ManagerLoginPage';
 import ManagerIndicatorsPage from './components/ManagerIndicatorsPage';
+import Header from './components/Header'; // Import the Header component
 
 const App = () => {
   return (
     <Router>
+      <Header /> {/* Add the Header component here */}
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/driver" element={<DriverPage />} />

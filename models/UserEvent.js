@@ -1,11 +1,15 @@
+// models/UserEvent.js
 const mongoose = require('mongoose');
 
 const userEventSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
+  userId: String,
   lineNumber: String,
   station: String,
-  isHere: { type: Boolean, default: true },
+  isHere: Boolean,
+  count: Number, // Add count if needed, otherwise remove this field
   timestamp: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('UserEvent', userEventSchema);
+const UserEvent = mongoose.model('UserEvent', userEventSchema);
+
+module.exports = UserEvent;

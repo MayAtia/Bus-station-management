@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getDriverStations } from '../services/api';
 import { Container, Table, TableBody, TableCell, TableHead, TableRow, Box, Typography, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { useLocation } from 'react-router-dom';
+import LogoutButton from './LogoutButton';
 
 const StationsTable = () => {
   const [stations, setStations] = useState([]);
@@ -22,6 +23,7 @@ const StationsTable = () => {
 
   return (
     <Container maxWidth="md">
+      <LogoutButton />
       <Box my={4}>
         <Typography variant="h4" component="h1" gutterBottom>
           Stations
@@ -40,7 +42,7 @@ const StationsTable = () => {
                 <TableCell>
                   <FormControl fullWidth>
                     <InputLabel>Station</InputLabel>
-                    <Select value={station.station_id}>
+                    <Select value={station.station_id} sx={{ backgroundColor: '#FFFFFF', borderRadius: '8px' }}>
                       <MenuItem value="Station 1">Station 1</MenuItem>
                       <MenuItem value="Station 2">Station 2</MenuItem>
                       <MenuItem value="Station 3">Station 3</MenuItem>

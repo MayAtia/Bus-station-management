@@ -77,4 +77,14 @@ router.get('/passengersPerHour', async (req, res) => {
   }
 });
 
+router.get('/stationClicks', async (req, res) => {
+  try {
+      const stationClicks = await UserEvent.find({ userId: '00000000', name: 'Stations' });
+      res.status(200).json(stationClicks);
+  } catch (error) {
+      console.error(`Error retrieving station clicks: ${error}`);
+      res.status(500).send('Server error');
+  }
+});
+
 module.exports = router;

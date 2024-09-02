@@ -8,6 +8,7 @@ const DriverPage = () => {
   const [busLine, setBusLine] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEvents, setUserEvents] = useState([]);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -16,7 +17,14 @@ const DriverPage = () => {
       setIsLoggedIn(true);
     } catch (error) {
       console.error(error);
+      setError(error.message);
     }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setEmployeeNumber('');
+    setBusLine('');
   };
 
   const fetchUserEvents = async () => {
@@ -45,15 +53,25 @@ const DriverPage = () => {
       console.error(error);
     }
   };
+  const handleEmployeeNumberChange = (e) => {
+    const value = e.target.value;
+    if (/^\d*$/.test(value)) {
+      setEmployeeNumber(value);
+    } else {
+      alert('יש להכניס רק מספרים');
+    }
+  };
+  
 
   return (
     <Container maxWidth="sm">
       <Box my={4} style={{ direction: 'rtl', textAlign: 'right' }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          כניסת נהג
-        </Typography>
         {!isLoggedIn ? (
           <>
+            <Typography variant="h4" component="h1" gutterBottom>
+              כניסת נהג
+            </Typography>
+            {error && <Typography color="error">{error}</Typography>}
             <Typography variant="h6" component="label" htmlFor="employeeNumber">
               מספר עובד
             </Typography>
@@ -62,9 +80,10 @@ const DriverPage = () => {
               fullWidth
               margin="normal"
               value={employeeNumber}
-              onChange={(e) => setEmployeeNumber(e.target.value)}
+              onChange={handleEmployeeNumberChange}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} // Increased font size
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} // Increased label font size
+              sx={{ backgroundColor: '#FFFFFF' }}
             />
             <Button
               variant="contained"
@@ -79,6 +98,21 @@ const DriverPage = () => {
           </>
         ) : (
           <>
+            <Button
+              onClick={handleLogout}
+              sx={{
+                position: 'absolute',
+                top: '10px',
+                right: '10px',
+                backgroundColor: '#ff0000',
+                color: '#fff',
+                '&:hover': {
+                  backgroundColor: '#cc0000',
+                },
+              }}
+            >
+              יציאה
+            </Button>
             <Typography variant="h6" component="label" htmlFor="busLine">
               קו אוטובוס
             </Typography>
@@ -90,6 +124,7 @@ const DriverPage = () => {
               onChange={(e) => setBusLine(e.target.value)}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} // Increased font size
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} // Increased label font size
+              sx={{ backgroundColor: '#FFFFFF' }}
             />
             <Table>
               <TableHead>

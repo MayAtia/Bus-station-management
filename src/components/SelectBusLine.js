@@ -22,6 +22,7 @@ const SelectBusLine = () => {
           margin="normal"
           value={busLine}
           onChange={(e) => setBusLine(e.target.value)}
+          sx={{ backgroundColor: '#FFFFFF' }}
         />
         <Button
           variant="contained"

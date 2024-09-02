@@ -23,6 +23,7 @@ const ManagerBusLine = () => {
           margin="normal"
           value={busLine}
           onChange={(e) => setBusLine(e.target.value)}
+          sx={{ backgroundColor: '#FFFFFF' }}
         />
         <TextField
           label="Date"
@@ -32,6 +33,7 @@ const ManagerBusLine = () => {
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          sx={{ backgroundColor: '#FFFFFF' }}
         />
         <Button
           variant="contained"

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getManagerIndicators, getPassengersPerDay, getPassengersPerHour } from '../services/api';
-import { Container, Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Container, Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material';
 import { Line, Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
@@ -13,6 +13,7 @@ const ManagerIndicatorsPage = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const busLine = params.get('busLine');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,6 +43,10 @@ const ManagerIndicatorsPage = () => {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleLogout = () => {
+    navigate('/manager');
   };
 
   const passengersPerDayData = {
@@ -86,6 +91,21 @@ const ManagerIndicatorsPage = () => {
 
   return (
     <Container maxWidth="md">
+      <Button
+        onClick={handleLogout}
+        sx={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          backgroundColor: '#ff0000',
+          color: '#fff',
+          '&:hover': {
+            backgroundColor: '#cc0000',
+          },
+        }}
+      >
+        יציאה
+      </Button>
       <Box my={4}>
         <Typography variant="h4" component="h1" gutterBottom>
           Manager Indicators
@@ -115,11 +135,12 @@ const ManagerIndicatorsPage = () => {
         <Box my={4}>
           <Typography variant="h6">Passengers Per Day</Typography>
           <Line data={passengersPerDayData} />
-          <FormControl fullWidth margin="normal">
+          <FormControl fullWidth margin="normal" sx={{ backgroundColor: '#FFFFFF', borderRadius: '8px' }}>
             <InputLabel>Select Date</InputLabel>
             <Select
               value={selectedDate}
               onChange={(e) => handleDateSelect(e.target.value)}
+              sx={{ backgroundColor: '#FFFFFF', borderRadius: '8px' }}
             >
               {passengersPerDay.map((item) => (
                 <MenuItem key={item._id} value={item._id}>{item._id}</MenuItem>

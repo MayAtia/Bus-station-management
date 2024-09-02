@@ -1,10 +1,24 @@
 body {
-  font-family: 'Roboto', sans-serif;
-  background-color: #f5f5f5;
+  font-family: 'Alef', sans-serif;
+  background-color: #d4eeff;
   margin: 0;
   padding: 0;
 }
 
 button {
   margin-top: 20px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.input-label-white {
+  background-color: #FFFFFF; /* White background */
+  padding: 0 4px; /* Optional: Add padding to the label */
+}
+
+
+input {
+  background-color: #FFFFFF; /* White background for all input fields */
 }

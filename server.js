@@ -3,10 +3,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const morgan = require('morgan');
+const helmet = require('helmet');  
 
 const app = express();
+
+app.use(helmet());
+
 app.use(bodyParser.json());
 app.use(cors());
+app.use(morgan('dev'));
 
 const mongoUri = process.env.MONGO_URI;
 if (!mongoUri) {
@@ -14,7 +20,7 @@ if (!mongoUri) {
   process.exit(1); 
 }
 
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoUri)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
 

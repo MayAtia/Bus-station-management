@@ -1,22 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const Driver = require('../../smart-bus-stop/models/Driver');
-const UserEvent = require('../../smart-bus-stop/models/UserEvent');
+const AllowedDriver = require('../models/AllowedDriver');
+const Driver = require('../models/Driver');
+const UserEvent = require('../models/UserEvent'); // Ensure UserEvent model is imported
 
-router.post('/login', async (req, res) => {
-  const { employeeNumber } = req.body;
+// Check if driver is allowed
+router.get('/allowed', async (req, res) => {
+  const { employeeNumber } = req.query;
   try {
-    let driver = await Driver.findOne({ employee_number: employeeNumber });
-    if (!driver) {
-      driver = new Driver({ employee_number: employeeNumber, stations: [] });
-      await driver.save();
+    const allowedDriver = await AllowedDriver.findOne({ employee_number: employeeNumber });
+    if (allowedDriver) {
+      res.json({ allowed: true });
+    } else {
+      res.json({ allowed: false });
     }
-    res.status(200).send(driver);
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send('Server error');
   }
 });
 
+// Handle driver login
+router.post('/login', async (req, res) => {
+  const { employeeNumber } = req.body;
+  try {
+    const driver = await Driver.findOne({ employee_number: employeeNumber });
+    if (!driver) {
+      return res.status(404).send('Driver not found');
+    }
+    res.json(driver);
+  } catch (error) {
+    res.status(500).send('Server error');
+  }
+});
+
+// Get user events for a specific bus line
 router.get('/userEvents', async (req, res) => {
   const { busLine } = req.query;
   try {
@@ -27,6 +44,17 @@ router.get('/userEvents', async (req, res) => {
     res.status(200).send(userEvents);
   } catch (error) {
     res.status(500).send(error);
+  }
+});
+
+// Get station clicks (example route, ensure it's needed and properly implemented)
+router.get('/stationClicks', async (req, res) => {
+  try {
+    const stationClicks = await UserEvent.find({ userId: '00000000', name: 'Stations' });
+    res.status(200).json(stationClicks);
+  } catch (error) {
+    console.error(`Error retrieving station clicks: ${error}`);
+    res.status(500).send('Server error');
   }
 });
 
