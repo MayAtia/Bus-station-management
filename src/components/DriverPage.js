@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { driverLogin, getUserEvents, confirmStationArrival } from '../services/api';
 import { Container, TextField, Button, Box, Typography, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import { handleInputChange } from '../components/ValueChecker';
@@ -8,95 +8,87 @@ const DriverPage = () => {
   const [busLine, setBusLine] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEvents, setUserEvents] = useState([]);
+  const [currentBusLine, setCurrentBusLine] = useState('');
   const [error, setError] = useState('');
   const [isFetching, setIsFetching] = useState(false);
-  const [noData, setNoData] = useState(false);
-  const [currentBusLine, setCurrentBusLine] = useState('');
-  const [showBusLineInput, setShowBusLineInput] = useState(true);
- 
-//בדיקה אם הנהג התחבר למערכת
+
+
+  // בדיקה אם הנהג התחבר למערכת
   const handleLogin = async () => {
     try {
       await driverLogin(employeeNumber);
       setIsLoggedIn(true);
-    } catch (error) {
-      console.error(error);
+      setError('');
+    } catch {
       setError('מספר נהג לא תקין');
       alert('מספר נהג לא תקין');
     }
   };
-//איפוס נתונם מיציאה מהמערכת
+
+  // איפוס נתונים ביציאה מהמערכת
   const handleLogout = () => {
     setIsLoggedIn(false);
     setEmployeeNumber('');
     setBusLine('');
     setUserEvents([]);
     setIsFetching(false);
-    setNoData(false);
-    setShowBusLineInput(true);
     setCurrentBusLine('');
   };
 
-  // מידע של המשתמשים:הבאת נתוני תחנות לפי קו האוטובוס הנבחר 
-  const fetchUserEvents = async () => {
-    try {
-      if (currentBusLine !== busLine) {
-        return; 
+  // מידע של המשתמשים: הבאת נתוני תחנות לפי קו האוטובוס הנבחר 
+  const fetchUserEvents = useCallback(async () => {
+    if (currentBusLine) {
+      try {
+        const response = await getUserEvents(currentBusLine);
+        const sortedEvents = response.data.sort((a, b) => a._id.localeCompare(b._id));
+        setUserEvents(sortedEvents);
+      } catch {
+        console.error('Failed to fetch user events');
       }
-
-      const response = await getUserEvents(busLine);
-      const sortedEvents = response.data.sort((a, b) => a._id.localeCompare(b._id));
-      setUserEvents(sortedEvents);
-      setNoData(sortedEvents.length === 0); 
-    } catch (error) {
-      console.error(error);
     }
-  };
+  }, [currentBusLine]);
 
- //הבאת נתונים ע"י הכפתור
+  // הבאת נתונים ע"י הכפתור
   const handleFetchUserEvents = () => {
     if (busLine) {
-      setCurrentBusLine(busLine); 
-      fetchUserEvents(); 
+      setCurrentBusLine(busLine);
       setIsFetching(true);
-      setShowBusLineInput(false);
     } else {
       alert('יש להזין מספר קו אוטובוס.');
     }
   };
 
- //חזרה לבחירת קו חדש-מאפס את הנתונים
+  // חזרה לבחירת קו חדש - מאפס את הנתונים
   const handleReturnToBusLineSelection = () => {
     setUserEvents([]);
-    setShowBusLineInput(true);
     setBusLine('');
-    setNoData(false);
     setCurrentBusLine('');
+    setIsFetching(false);
   };
 
-  //ריענון נתונים כאשר מתבצע שינויים 
+  // רענון נתונים כאשר מתבצע שינויים
   useEffect(() => {
     let interval;
     if (isFetching) {
-      interval = setInterval(fetchUserEvents, 2000); 
+      fetchUserEvents();
+      interval = setInterval(fetchUserEvents, 2000);
     }
     return () => clearInterval(interval);
-  }, [isFetching, currentBusLine]);
+  }, [isFetching, fetchUserEvents]);
 
-  //עדכון אישור הגעה של הנהג לתחנה
+  // עדכון אישור הגעה של הנהג לתחנה
   const handleConfirmArrival = async (station) => {
     try {
       await confirmStationArrival(station);
-      fetchUserEvents(); 
-    } catch (error) {
-      console.error(error);
+      fetchUserEvents();
+    } catch {
+      console.error('Failed to confirm station arrival');
     }
   };
 
-  
   return (
     <Container maxWidth="sm">
-      <Box my={4} style={{ direction: 'rtl', textAlign: 'right' }}>
+      <Box my={4} sx={{ direction: 'rtl', textAlign: 'right' }}>
         {!isLoggedIn ? (
           <>
             <Typography variant="h4" component="h1" gutterBottom>
@@ -145,32 +137,7 @@ const DriverPage = () => {
               יציאה
             </Button>
 
-            {showBusLineInput ? (
-              <>
-                <Typography variant="h6" component="label" htmlFor="busLine">
-                  קו אוטובוס
-                </Typography>
-                <TextField
-                  id="busLine"
-                  fullWidth
-                  margin="normal"
-                  value={busLine}
-                  onChange={handleInputChange(setBusLine)}
-                  inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }}
-                  InputLabelProps={{ style: { fontSize: '1.2rem' } }}
-                  sx={{ backgroundColor: '#FFFFFF' }}
-                />
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleFetchUserEvents}
-                  fullWidth
-                  style={{ fontSize: '1.2rem', padding: '12px' }}
-                >
-                  טען נתונים
-                </Button>
-              </>
-            ) : (
+            {currentBusLine ? (
               <>
                 <Typography variant="h5" component="h2" style={{ textAlign: 'center', marginBottom: '16px', fontWeight: 'bold' }}>
                   קו אוטובוס: {currentBusLine}
@@ -185,14 +152,11 @@ const DriverPage = () => {
                   חזרה לבחירת קו
                 </Button>
 
-
-                {noData && (
-                  <Typography variant="body1" color="black" style={{ fontSize: '1.2rem', marginTop: '16px', textAlign: 'center' }}>
-                  מחכה לנתונים
+                {userEvents.length === 0 ? (
+                  <Typography align="center" style={{ fontSize: '1.2rem', marginTop: '16px' }}>
+                    מחכה לנתונים
                   </Typography>
-                )}
-
-                {!noData && (
+                ) : (
                   <Table>
                     <TableHead>
                       <TableRow>
@@ -221,6 +185,31 @@ const DriverPage = () => {
                     </TableBody>
                   </Table>
                 )}
+              </>
+            ) : (
+              <>
+                <Typography variant="h6" component="label" htmlFor="busLine">
+                  קו אוטובוס
+                </Typography>
+                <TextField
+                  id="busLine"
+                  fullWidth
+                  margin="normal"
+                  value={busLine}
+                  onChange={handleInputChange(setBusLine)}
+                  inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }}
+                  InputLabelProps={{ style: { fontSize: '1.2rem' } }}
+                  sx={{ backgroundColor: '#FFFFFF' }}
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleFetchUserEvents}
+                  fullWidth
+                  style={{ fontSize: '1.2rem', padding: '12px' }}
+                >
+                  טען נתונים
+                </Button>
               </>
             )}
           </>

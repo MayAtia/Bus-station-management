@@ -5,14 +5,13 @@ import MuiAlert from '@mui/material/Alert';
 import { handleInputChange } from '../components/ValueChecker';
 
 
-
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
-//בדיקת ת.ז תקינה
+// בדיקת ת.ז תקינה
 const validateIsraeliId = (id) => {
-  id = id.replace(/\D/g, '');
+  id = id.replace(/\D/g, ''); // Remove non-digit characters
 
   if (id.length > 9 || id.length < 5) {
     return false;
@@ -25,7 +24,7 @@ const validateIsraeliId = (id) => {
     if (i % 2 !== 0) {
       num *= 2;
       if (num > 9) {
-        num = num - 9;
+        num -= 9;
       }
     }
     totalSum += num;
@@ -42,13 +41,12 @@ const LoginPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [open, setOpen] = useState(false);
 
-
-  //מאמת ת.ז וכניסה למערכת 
+  // מאמת ת.ז וכניסה למערכת 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateIsraeliId(idCard)) {
-      alert('תעודת הזהות שהזנת אינה תקינה');
+      alert('תעודת הזהות אינה תקינה');
       return;
     }
 
@@ -57,11 +55,11 @@ const LoginPage = () => {
       console.log(response.data);
       setIsLoggedIn(true);
     } catch (error) {
-      console.error(error);
+      console.error('Login failed:', error);
     }
   };
 
-  //איפוס נתונים ביציאה מהמערכת
+  // איפוס נתונים ביציאה מהמערכת
   const handleLogout = () => {
     setIsLoggedIn(false);
     setName('');
@@ -70,18 +68,19 @@ const LoginPage = () => {
     setLineNumber('');
   };
 
-  //אם כל הנתונים זמינים, שומרת את אירוע התחנה
+  // אם כל הנתונים זמינים, שומר את אירועי התחנה
   const handleStationConfirm = async () => {
     if (station && lineNumber && idCard) {
       try {
         await saveUserEvent(idCard, lineNumber, station);
         setOpen(true);
       } catch (error) {
-        console.error(error);
+        console.error('Station confirmation failed:', error);
       }
     }
   };
 
+  
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -89,21 +88,24 @@ const LoginPage = () => {
     setOpen(false);
   };
 
-  //מאמת שהשם מכיל רק אותיות ולא תווים
+  // מאמת שהשם מכיל רק אותיות ולא תווים
   const handleNameChange = (e) => {
     const value = e.target.value;
-       const symbolPattern = /[^\u0590-\u05FFa-zA-Z\s]/;
+    const symbolPattern = /[^\u0590-\u05FFa-zA-Z\s]/; // Only Hebrew and Latin letters
 
     if (symbolPattern.test(value)) {
-        alert("אין להשתמש בתווים @!><");
-        return; 
+      alert('אין להשתמש בתווים @!><');
+      return;
     }
 
     if (/^[\u0590-\u05FFa-zA-Z\s]*$/.test(value)) {
-        setName(value);
+      setName(value);
     }
   };
 
+  
+  const commonTextFieldProps = { fullWidth: true, margin: 'normal', sx: { backgroundColor: '#FFFFFF' } };
+  const buttonStyle = { fontSize: '1.2rem', padding: '12px' };
 
   return (
     <Container maxWidth="sm">
@@ -119,26 +121,22 @@ const LoginPage = () => {
               </Typography>
               <TextField
                 id="name"
-                fullWidth
-                margin="normal"
                 value={name}
                 onChange={handleNameChange}
                 inputProps={{ style: { textAlign: 'right' } }}
-                sx={{ backgroundColor: '#FFFFFF' }}
+                {...commonTextFieldProps}
               />
               <Typography variant="h6" component="label" htmlFor="idCard">
                 תעודת זהות
               </Typography>
               <TextField
                 id="idCard"
-                fullWidth
-                margin="normal"
                 value={idCard}
                 onChange={handleInputChange(setIdCard)}
                 inputProps={{ style: { textAlign: 'right' } }}
-                sx={{ backgroundColor: '#FFFFFF' }}
+                {...commonTextFieldProps}
               />
-              <Button variant="contained" color="primary" type="submit" fullWidth>
+              <Button variant="contained" color="primary" type="submit" fullWidth sx={buttonStyle}>
                 כניסה
               </Button>
             </form>
@@ -183,26 +181,24 @@ const LoginPage = () => {
               </Typography>
               <TextField
                 id="lineNumber"
-                fullWidth
-                margin="normal"
                 value={lineNumber}
                 onChange={handleInputChange(setLineNumber)}
                 inputProps={{ style: { textAlign: 'right' } }}
-                sx={{ backgroundColor: '#FFFFFF' }}
+                {...commonTextFieldProps}
               />
-              <Button variant="contained" color="primary" onClick={handleStationConfirm} fullWidth>
+              <Button variant="contained" color="primary" onClick={handleStationConfirm} fullWidth sx={buttonStyle}>
                 בחירת תחנה וקו
               </Button>
               <Snackbar
-  open={open}
-  autoHideDuration={6000}
-  onClose={handleClose}
-  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}  
->
-  <Alert onClose={handleClose} severity="success" sx={{ width: '100%', fontSize: '1.5rem', backgroundColor: '#4caf50', fontWeight: 'bold' }}>
-    הבחירה נקלטה בהצלחה!
-  </Alert>
-</Snackbar>
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              >
+                <Alert onClose={handleClose} severity="success" sx={{ width: '100%', fontSize: '1.5rem', backgroundColor: '#4caf50', fontWeight: 'bold' }}>
+                  הבחירה נקלטה בהצלחה!
+                </Alert>
+              </Snackbar>
             </Box>
           </>
         )}
