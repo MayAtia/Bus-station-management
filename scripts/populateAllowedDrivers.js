@@ -1,4 +1,3 @@
-// scripts/populateAllowedDrivers.js
 const mongoose = require('mongoose');
 const AllowedDriver = require('../models/AllowedDriver');
 

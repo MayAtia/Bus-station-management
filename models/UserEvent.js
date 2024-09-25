@@ -1,4 +1,3 @@
-// models/UserEvent.js
 const mongoose = require('mongoose');
 
 const userEventSchema = new mongoose.Schema({
@@ -6,7 +5,7 @@ const userEventSchema = new mongoose.Schema({
   lineNumber: String,
   station: String,
   isHere: Boolean,
-  count: Number, // Add count if needed, otherwise remove this field
+  count: Number, 
   timestamp: { type: Date, default: Date.now }
 });
 

@@ -1,4 +1,4 @@
-// models/AllowedDriver.js
+
 const mongoose = require('mongoose');
 
 const allowedDriverSchema = new mongoose.Schema({

@@ -2,43 +2,44 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { managerLogin } from '../services/api';
 import { Container, TextField, Button, Box, Typography } from '@mui/material';
+import { handleInputChange } from '../components/ValueChecker';
 
 const ManagerLoginPage = () => {
   const [employeeNumber, setEmployeeNumber] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [busLine, setBusLine] = useState('');
+  const [error, setError] = useState(''); // הוספת state לניהול שגיאות
   const navigate = useNavigate();
 
+  //התחברות למערכת
   const handleLogin = async () => {
     try {
       await managerLogin(employeeNumber, password);
       setIsLoggedIn(true);
+      setError(''); // איפוס שגיאה
     } catch (error) {
       console.error(error);
+      setError('שם משתמש או סיסמה לא נכונים'); // הגדרת הודעת שגיאה
+      alert('שם משתמש או סיסמה לא נכונים'); // הצגת הודעת שגיאה כ-alert
     }
   };
 
+  //איפוס המערכת
   const handleLogout = () => {
     setIsLoggedIn(false);
     setEmployeeNumber('');
     setPassword('');
     setBusLine('');
+    setError(''); // איפוס השגיאה ביציאה
   };
 
+  //מעבר לעמוד לפי קו האוטובוס
   const handleBusLineSubmit = () => {
     navigate(`/manager/indicators?busLine=${busLine}`);
   };
 
-  const handleEmployeeNumberChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      setEmployeeNumber(value);
-    } else {
-      alert('יש להכניס רק מספרים');
-    }
-  };
-
+//בדיקה אם הסיסמה מכילה תווים לא חוקיים
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     if (/^[^<>@#$%&*]*$/.test(value)) {
@@ -48,6 +49,7 @@ const ManagerLoginPage = () => {
     }
   };
 
+
   return (
     <Container maxWidth="sm">
       <Box my={4} style={{ direction: 'rtl', textAlign: 'right' }}>
@@ -56,6 +58,11 @@ const ManagerLoginPage = () => {
             <Typography variant="h4" component="h1" gutterBottom>
               כניסת מנהל
             </Typography>
+            {error && (
+              <Typography variant="body1" color="error" gutterBottom>
+                {error}
+              </Typography>
+            )}
             <Typography variant="h6" component="label" htmlFor="employeeNumber">
               מספר עובד
             </Typography>
@@ -64,7 +71,7 @@ const ManagerLoginPage = () => {
               fullWidth
               margin="normal"
               value={employeeNumber}
-              onChange={handleEmployeeNumberChange}
+              onChange={handleInputChange(setEmployeeNumber)}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
               sx={{ backgroundColor: '#FFFFFF' }}
@@ -78,7 +85,7 @@ const ManagerLoginPage = () => {
               fullWidth
               margin="normal"
               value={password}
-              onChange={handlePasswordChange}
+              onChange={handlePasswordChange} 
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
               sx={{ backgroundColor: '#FFFFFF' }}
@@ -119,7 +126,7 @@ const ManagerLoginPage = () => {
               fullWidth
               margin="normal"
               value={busLine}
-              onChange={(e) => setBusLine(e.target.value)}
+              onChange={handleInputChange(setBusLine)}
               inputProps={{ style: { textAlign: 'right', fontSize: '1.2rem' } }} 
               InputLabelProps={{ style: { fontSize: '1.2rem' } }} 
               sx={{ backgroundColor: '#FFFFFF' }}

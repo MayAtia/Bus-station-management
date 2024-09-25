@@ -14,11 +14,11 @@ button {
 }
 
 .input-label-white {
-  background-color: #FFFFFF; /* White background */
-  padding: 0 4px; /* Optional: Add padding to the label */
+  background-color: #FFFFFF; 
+  padding: 0 4px; 
 }
 
 
 input {
-  background-color: #FFFFFF; /* White background for all input fields */
+  background-color: #FFFFFF; 
 }

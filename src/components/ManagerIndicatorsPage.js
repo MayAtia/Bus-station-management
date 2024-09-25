@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { getManagerIndicators, getPassengersPerDay, getPassengersPerHour } from '../services/api';
 import { Container, Box, Typography, Table, TableBody, TableCell, TableHead, TableRow, Select, MenuItem, FormControl, InputLabel, Button } from '@mui/material';
 import { Line, Bar } from 'react-chartjs-2';
-import 'chart.js/auto';
+import 'chart.js/auto'; //יבוא רכיבים לגרפים
 
 const ManagerIndicatorsPage = () => {
   const [indicators, setIndicators] = useState(null);
@@ -15,6 +15,7 @@ const ManagerIndicatorsPage = () => {
   const busLine = params.get('busLine');
   const navigate = useNavigate();
 
+  //מיבא את הנתונים האינדיקטורים לפי קו האוטובוס
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -31,6 +32,7 @@ const ManagerIndicatorsPage = () => {
     fetchData();
   }, [busLine]);
 
+  //בחירת תאריך והצגת הנתונים בגרף
   const handleDateSelect = async (date) => {
     setSelectedDate(date);
     try {
@@ -44,16 +46,17 @@ const ManagerIndicatorsPage = () => {
       console.error(error);
     }
   };
-
+//מחזיר את המנהל לעמוד התחברות 
   const handleLogout = () => {
     navigate('/manager');
   };
 
+  //הכנת הנתונים לתצוגה בגרפים
   const passengersPerDayData = {
     labels: passengersPerDay.map(item => item._id),
     datasets: [
       {
-        label: 'Passengers Per Day',
+        label: 'נוסעים',
         data: passengersPerDay.map(item => item.count),
         fill: false,
         borderColor: 'rgba(75,192,192,1)',
@@ -66,7 +69,7 @@ const ManagerIndicatorsPage = () => {
     labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
     datasets: [
       {
-        label: 'Passengers Per Hour',
+        label: 'נוסעים',
         data: passengersPerHour.map(item => item.count),
         backgroundColor: 'rgba(75,192,192,0.6)'
       }
@@ -89,8 +92,15 @@ const ManagerIndicatorsPage = () => {
 
   if (!indicators) return <div>Loading...</div>;
 
+  // סידור התחנות לפי סדר עולה
+  const sortedStations = indicators.groupedByStation.sort((a, b) => {
+    const stationA = parseInt(a._id.replace('Station ', ''), 10);
+    const stationB = parseInt(b._id.replace('Station ', ''), 10); 
+    return stationA - stationB; 
+  });
+
   return (
-    <Container maxWidth="md">
+    <Container maxWidth="lg" sx={{ direction: 'rtl', padding: 2 }}>
       <Button
         onClick={handleLogout}
         sx={{
@@ -107,36 +117,42 @@ const ManagerIndicatorsPage = () => {
         יציאה
       </Button>
       <Box my={4}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Manager Indicators
+        <Typography variant="h4" component="h1" gutterBottom align="right">
+          ניהול מנהל
         </Typography>
-        <Typography variant="h6">Bus Line: {busLine}</Typography>
-        <Typography variant="body1">Total Waiting: {indicators.totalWaiting}</Typography>
-        <Typography variant="body1">Total Arrived: {indicators.totalArrived}</Typography>
+        <Typography variant="h6" align="right">קו אוטובוס: {busLine}</Typography>
+        <Typography variant="h6" align="right">סה"כ ממתינים לקו: {indicators.totalWaiting}</Typography>
+        <Typography variant="h6" align="right">סה"כ נוסעים: {indicators.totalArrived}</Typography>
+        
         <Box my={4}>
-          <Typography variant="h6">Waiting Count by Station</Typography>
+          <Typography variant="h6" align="right">ספירת נוסעים לפי תחנה</Typography>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Station</TableCell>
-                <TableCell>Waiting Count</TableCell>
+                <TableCell align="right" sx={{ fontSize: '18px' }}>תחנה</TableCell>
+                <TableCell align="right" sx={{ fontSize: '18px' }}>מספר נוסעים</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {indicators.groupedByStation.map((station) => (
+              {sortedStations.map((station) => (
                 <TableRow key={station._id}>
-                  <TableCell>{station._id}</TableCell>
-                  <TableCell>{station.count}</TableCell>
+                  <TableCell align="right" sx={{ fontSize: '16px' }}>{`תחנה ${station._id.replace('Station ', '')}`}</TableCell> {/* הצגת התחנה בסדר מספרי */}
+                  <TableCell align="right" sx={{ fontSize: '16px' }}>{station.count}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </Box>
+        
         <Box my={4}>
-          <Typography variant="h6">Passengers Per Day</Typography>
+          <Typography variant="h6" align="right">כמות נוסעים לפי יום:</Typography>
           <Line data={passengersPerDayData} />
-          <FormControl fullWidth margin="normal" sx={{ backgroundColor: '#FFFFFF', borderRadius: '8px' }}>
-            <InputLabel>Select Date</InputLabel>
+        </Box>
+        
+        <Box my={4}>
+          <Typography variant="h6" align="right">כמות נוסעים לפי שעה:</Typography>
+          <FormControl fullWidth margin="normal" sx={{ backgroundColor: '#FFFFFF', borderRadius: '8px', direction: 'rtl' }}>
+            <InputLabel align="right">בחר תאריך</InputLabel>
             <Select
               value={selectedDate}
               onChange={(e) => handleDateSelect(e.target.value)}
@@ -148,9 +164,10 @@ const ManagerIndicatorsPage = () => {
             </Select>
           </FormControl>
         </Box>
+
         {selectedDate && (
           <Box my={4}>
-            <Typography variant="h6">Passengers Per Hour on {selectedDate}</Typography>
+            <Typography variant="h6" align="right"> {selectedDate}</Typography>
             <Bar data={passengersPerHourData} options={passengersPerHourOptions} />
           </Box>
         )}

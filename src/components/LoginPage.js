@@ -1,26 +1,24 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { userLogin, saveUserEvent } from '../services/api';
 import { Container, TextField, Button, Box, Typography, MenuItem, Select, FormControl, Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
+import { handleInputChange } from '../components/ValueChecker';
+
+
 
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+//בדיקת ת.ז תקינה
 const validateIsraeliId = (id) => {
-  // הסרת תווים שאינם ספרות
   id = id.replace(/\D/g, '');
 
-  // בדיקת אורך הת.ז.
   if (id.length > 9 || id.length < 5) {
     return false;
   }
 
-  // השלמת הת.ז. ל-9 ספרות עם אפסים מובילים
   id = id.padStart(9, '0');
-
-  // חשבון ספרת הביקורת לפי האלגוריתם
   let totalSum = 0;
   for (let i = 0; i < 9; i++) {
     let num = parseInt(id[i], 10);
@@ -33,7 +31,6 @@ const validateIsraeliId = (id) => {
     totalSum += num;
   }
 
-  // בדיקה אם הסכום מתחלק ב-10 ללא שארית
   return totalSum % 10 === 0;
 };
 
@@ -43,10 +40,10 @@ const LoginPage = () => {
   const [station, setStation] = useState('');
   const [lineNumber, setLineNumber] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isStationConfirmed, setIsStationConfirmed] = useState(false);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
 
+
+  //מאמת ת.ז וכניסה למערכת 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -64,6 +61,7 @@ const LoginPage = () => {
     }
   };
 
+  //איפוס נתונים ביציאה מהמערכת
   const handleLogout = () => {
     setIsLoggedIn(false);
     setName('');
@@ -72,11 +70,11 @@ const LoginPage = () => {
     setLineNumber('');
   };
 
+  //אם כל הנתונים זמינים, שומרת את אירוע התחנה
   const handleStationConfirm = async () => {
     if (station && lineNumber && idCard) {
       try {
         await saveUserEvent(idCard, lineNumber, station);
-        setIsStationConfirmed(true);
         setOpen(true);
       } catch (error) {
         console.error(error);
@@ -91,14 +89,14 @@ const LoginPage = () => {
     setOpen(false);
   };
 
+  //מאמת שהשם מכיל רק אותיות ולא תווים
   const handleNameChange = (e) => {
     const value = e.target.value;
-    // ביטוי רגולרי שבודק האם יש סמלים שאינם תווים אלפבתיים בעברית או באנגלית
-    const symbolPattern = /[^\u0590-\u05FFa-zA-Z\s]/;
+       const symbolPattern = /[^\u0590-\u05FFa-zA-Z\s]/;
 
     if (symbolPattern.test(value)) {
         alert("אין להשתמש בתווים @!><");
-        return; // לא לעדכן את ה-state אם יש סמלים
+        return; 
     }
 
     if (/^[\u0590-\u05FFa-zA-Z\s]*$/.test(value)) {
@@ -106,12 +104,6 @@ const LoginPage = () => {
     }
   };
 
-  const handleIdCardChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) {
-      setIdCard(value);
-    }
-  };
 
   return (
     <Container maxWidth="sm">
@@ -142,7 +134,7 @@ const LoginPage = () => {
                 fullWidth
                 margin="normal"
                 value={idCard}
-                onChange={handleIdCardChange}
+                onChange={handleInputChange(setIdCard)}
                 inputProps={{ style: { textAlign: 'right' } }}
                 sx={{ backgroundColor: '#FFFFFF' }}
               />
@@ -194,7 +186,7 @@ const LoginPage = () => {
                 fullWidth
                 margin="normal"
                 value={lineNumber}
-                onChange={(e) => setLineNumber(e.target.value)}
+                onChange={handleInputChange(setLineNumber)}
                 inputProps={{ style: { textAlign: 'right' } }}
                 sx={{ backgroundColor: '#FFFFFF' }}
               />
@@ -205,7 +197,7 @@ const LoginPage = () => {
   open={open}
   autoHideDuration={6000}
   onClose={handleClose}
-  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}  // Changed from 'center' to 'top'
+  anchorOrigin={{ vertical: 'top', horizontal: 'center' }}  
 >
   <Alert onClose={handleClose} severity="success" sx={{ width: '100%', fontSize: '1.5rem', backgroundColor: '#4caf50', fontWeight: 'bold' }}>
     הבחירה נקלטה בהצלחה!

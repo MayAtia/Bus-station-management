@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const AllowedDriver = require('../models/AllowedDriver');
 const Driver = require('../models/Driver');
-const UserEvent = require('../models/UserEvent'); // Ensure UserEvent model is imported
+const UserEvent = require('../models/UserEvent'); 
 
-// Check if driver is allowed
+
 router.get('/allowed', async (req, res) => {
   const { employeeNumber } = req.query;
   try {
@@ -19,7 +19,7 @@ router.get('/allowed', async (req, res) => {
   }
 });
 
-// Handle driver login
+
 router.post('/login', async (req, res) => {
   const { employeeNumber } = req.body;
   try {
@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get user events for a specific bus line
+
 router.get('/userEvents', async (req, res) => {
   const { busLine } = req.query;
   try {
@@ -47,7 +47,6 @@ router.get('/userEvents', async (req, res) => {
   }
 });
 
-// Get station clicks (example route, ensure it's needed and properly implemented)
 router.get('/stationClicks', async (req, res) => {
   try {
     const stationClicks = await UserEvent.find({ userId: '00000000', name: 'Stations' });
