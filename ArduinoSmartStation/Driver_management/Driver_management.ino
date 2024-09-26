@@ -72,7 +72,7 @@ void sendConfirmRequest() {
 
 int getNextStationToConfirm() {
 
-  static int currentStation = 1;
+  static int currentStation = 0;
   currentStation++;
   if (currentStation > 4) {
     currentStation = 1; 
